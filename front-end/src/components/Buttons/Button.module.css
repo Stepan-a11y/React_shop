@@ -1,0 +1,7 @@
+.but {
+    width: 49%;
+    height: 36px;
+    background: none;
+    border: 3px solid rgb(219, 129, 235);
+    border-radius: 15px;
+}

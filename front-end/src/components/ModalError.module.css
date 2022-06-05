@@ -1,0 +1,31 @@
+.err {
+    height: 10%;
+    width: 15%;
+    background: rgb(240, 95, 95);
+    border-radius: 15px;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+}
+
+.err.active{
+    opacity: 1;
+}
+
+.errText {
+    width: 80%;
+}
+
+.closeBut {
+    position: fixed;
+    bottom: 70px;
+    right: 10px;
+    background: none;
+    border-radius: 20px;
+    font-size: medium;
+    border: none;
+}
