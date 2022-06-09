@@ -1,5 +1,6 @@
 import React from "react";
-import style from "./AboutShop.module.css";
+import style from "./styles/AboutShop.module.css";
+
 
 const AboutShop = () => {
   return (

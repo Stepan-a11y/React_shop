@@ -7,80 +7,52 @@ import Modal from "./components/Modal";
 import { Route, Routes } from "react-router-dom"
 import ProductPage from "./components/ProductPage";
 import ModalError from "./components/ModalError";
+import { useDispatch, useSelector } from "react-redux"
+import { getUserThunk } from "./store/thunks/userThunk"
+import { getProdCountThunk, getProductsThunk } from "./store/thunks/productsThunk";
+import MyBasket from "./components/MyBasket";
+import { setIsErrProd } from "./store/reducers/productReducer";
+import { setIsErrUser } from "./store/reducers/userReducer";
 
 
 const App = () => {
 
+  const products = useSelector(store => store.products.products)
+  const errProd = useSelector(store => store.products.prodError)
+  const isErrProd = useSelector(store => store.products.isErrProd)
+  const errUser = useSelector(store => store.products.userError)
+  const isErrUser = useSelector(store => store.products.isErrUser)
+  const dispatch = useDispatch()
+
   const [modalActive, setModalActive] = useState(false)
 
-  const [products, setProducts] = useState([])
-  const [user, setUser] = useState({})
-  const [countItem, setCountItem] = useState([])
-
-  const [basketItems, setBasketItems] = useState(0)
-  const [basketPrice, setBasketPrice] = useState(0)
-  const [isAuth, setIsAuth] = useState(false)
-  const [serverError, setServerError] = useState({errMessage: null})
-  const [isErr, setIsErr] = useState(false)
-
   useEffect(() => {
-      fetch('https://fakestoreapi.com/products')
-      .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => {
-        setServerError({errMessage: err.message})
-        setIsErr(true)
-      })
+    dispatch(getProductsThunk())
+    dispatch(getUserThunk())
   }, [])
-
+  
   useEffect(() => {
-      fetch('https://fakestoreapi.com/products')
-      .then(res => res.json())
-      .then(data => {
-        if (countItem.length === 0) {
-          let arr = [{ itemId: 0, count: 0 }];
-          data.forEach(elem => {
-            arr.push({ itemId: elem.id, count: elem.rating.count })
-          });
-          setCountItem(arr)
-        }
-      })
-      .catch(err => {
-        setServerError({errMessage: err.message})
-        setIsErr(true)
-      })
-  }, [])
-
-  useEffect(() => {
-      fetch('https://fakestoreapi.com/users/1')
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(err => {
-        setServerError({errMessage: err.message})
-        setIsErr(true)
-      })   
-  }, [])
-
-
-  const basket = (basketItem, price, id) => {
-    setBasketItems(basketItem + 1);
-    setBasketPrice(prev => Number(prev.toFixed(2)) + Number(price))
-    setCountItem([...countItem, countItem[id].count = countItem[id].count - 1])
+    dispatch(getProdCountThunk())
+  }, [products])
+  
+  const setErr = (flag) => {
+    dispatch(setIsErrUser(flag))
+    dispatch(setIsErrProd(flag))
   }
-
 
   return (
     <div className={style.app}>
       <Routes>
-        <Route path="/" element={<Header isAuth={isAuth} setIsAuth={setIsAuth} basketItems={basketItems} basketPrice={basketPrice} setActive={setModalActive} />}>
-          <Route index element={<Home isAuth={isAuth} countItem={countItem} products={products} basketItems={basketItems} basketPrice={basketPrice} basket={basket} />} />
-          <Route path="product/:id" element={<ProductPage isAuth={isAuth} setCountItem={setCountItem} countItem={countItem} setBasketPrice={setBasketPrice} setBasketItems={setBasketItems} products={products} />} />
+        <Route path="/" element={<Header setActive={setModalActive} />}>
+          <Route index element={<Home />} />
+          <Route path="product/:id" element={<ProductPage />} />
           <Route path="about" element={<AboutShop />} />
+          <Route path="basket" element={<MyBasket />} />
           <Route path="*" element={<h1 style={{ color: "red" }}>Что-то пошло не так. Данной страницы не существует</h1>} />
         </Route>
       </Routes>
-      <Modal email={user.email} password={user.password} setIsAuth={setIsAuth} active={modalActive} setActive={setModalActive} />
-      <ModalError serverError={serverError}  active={isErr} setActive={setIsErr}/>
+      <Modal active={modalActive} setActive={setModalActive} />
+      {<ModalError active={(isErrProd || isErrUser) ? true : false} setActive={setErr} errProd={errProd} errUser={errUser} />}
     </div>
   );
 }

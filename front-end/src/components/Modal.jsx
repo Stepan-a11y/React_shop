@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import Button from "./Buttons/Button";
-import style from "./Modal.module.css";
+import style from "./styles/Modal.module.css";
+import { useSelector, useDispatch } from "react-redux";
+import { setAuthAction } from "../store/reducers/userReducer";
 
 const Modal = (props) => {
 
+  const isAuth = useSelector(store => store.user.isAuth)
+  const user = useSelector(store => store.user.user)
+  const dispatch = useDispatch()
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [onSubmit, setOnSubmit] = useState(null)
 
   const submit = () => {
-    if (props.email !== email) {
-      setOnSubmit(false)
-    } else if (props.password !== password) {
-      setOnSubmit(false)
+    if (user.email !== email || user.password !== password) {
+      dispatch(setAuthAction(false))
     } else {
+      dispatch(setAuthAction(true))
       props.setActive(false)
-      setOnSubmit(true)
-      props.setIsAuth(true)
       setEmail("")
       setPassword("")
     }
@@ -31,7 +33,7 @@ const Modal = (props) => {
           <input id="login" className={style.inputs} type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
           <label htmlFor="pass">Пароль:</label>
           <input id="pass" className={style.inputs} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          {(onSubmit === false) && <span style={{color: "red"}}>Неверный логин или пароль!</span>}
+          {(isAuth === false) && <span style={{ color: "red" }}>Неверный логин или пароль!</span>}
           <div className={style.buttons}>
             <Button type="button" value="Отмена" onClick={(e) => { props.setActive(false) }} />
             <Button type="button" value="Войти" onClick={submit} />
